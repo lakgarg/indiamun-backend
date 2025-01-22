@@ -16,12 +16,13 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors({
     origin: ["http://localhost:3000", "https://indiamun.org","https://indiamun-main-website-e3160.firebaseapp.com/","https://indiamun-main-website-e3160.web.app/"],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     preflightContinue: false,
     optionsSuccessStatus: 204,
-    credentials: true // Allow credentials if needed
+    credentials: true, // Allow credentials if needed
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-
+app.options('*', cors()); // Preflight response for all routes
 app.use(express.urlencoded({ extended: true }));
 
 // Configure session
