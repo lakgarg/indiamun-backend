@@ -15,9 +15,11 @@ const port = process.env.PORT || 8000; // Set default port to 8000
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors({
-    origin: ["http://localhost:3000", "https://indiamun.org"],
+    origin: ["http://localhost:3000", "https://indiamun.org","https://indiamun-main-website-e3160.firebaseapp.com/","https://indiamun-main-website-e3160.web.app/"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true // Allow credentials if needed
 }));
 
 app.use(express.urlencoded({ extended: true }));
@@ -37,6 +39,7 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "https://indiamun.org");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
+    res.header("Access-Control-Allow-Credentials", "true"); // Allow credentials if needed
     next();
 });
 
