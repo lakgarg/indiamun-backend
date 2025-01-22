@@ -19,6 +19,7 @@ app.use(cors({
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
 }));
+
 app.use(express.urlencoded({ extended: true }));
 
 // Configure session
@@ -28,9 +29,16 @@ app.use(session({
     saveUninitialized: true,
 }));
 
+
 // Initialize Passport and restore authentication state, if any, from the session
 app.use(passport.initialize());
 app.use(passport.session());
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "https://indiamun.org");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
+    next();
+});
 
 app.use(router);
 
