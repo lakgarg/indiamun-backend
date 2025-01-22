@@ -8,11 +8,11 @@ const router = express.Router();
 router.post('/login', hero_login);
 router.post('/login_otp', login_otp_verify);
 
-// Google sign-in/sign-up route
-router.get('/auth/google', googleAuthController.googleAuth);
-// Google callback route
-router.get('/auth/google/callback', googleAuthController.googleAuthCallback, googleAuthController.googleAuthSuccess);
-router.post('/get_gjwt',getGjwt);
+// // Google sign-in/sign-up route
+// router.get('/auth/google', googleAuthController.googleAuth);
+// // Google callback route
+// router.get('/auth/google/callback', googleAuthController.googleAuthCallback, googleAuthController.googleAuthSuccess);
+// router.post('/get_gjwt',getGjwt);
 
 
 router.post('/register', hero_register); // in return of this request, a verification email will be sent to the user

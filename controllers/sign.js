@@ -12,125 +12,133 @@ const EXP_TIME_OTP = parseInt(process.env.EXP_TIME_OTP);
 
 
 
-// Google sign in
-// controllers/googleAuthController.js
-import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+// // Google sign in
+// // controllers/googleAuthController.js
+// import passport from 'passport';
+// import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 
-const users = [];
+// const users = [];
 
-// Configure Passport to use Google strategy
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.CALLBACK_URL
-    }, (accessToken, refreshToken, profile, done) => {
-    // Find or create user in the database
-    let user = users.find(u => u.googleId === profile.id);
-    if (!user) {
-        user = {
-        googleId: profile.id,
-        displayName: profile.displayName,
-        emails: profile.emails
-        };
-        users.push(user);
-    }
-    return done(null, user);
-}));
+// // Configure Passport to use Google strategy
+// passport.use(new GoogleStrategy({
+//     clientID: process.env.GOOGLE_CLIENT_ID,
+//     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//     callbackURL: process.env.CALLBACK_URL
+//     }, (accessToken, refreshToken, profile, done) => {
+//     // Find or create user in the database
+//     let user = users.find(u => u.googleId === profile.id);
+//     if (!user) {
+//         user = {
+//         googleId: profile.id,
+//         displayName: profile.displayName,
+//         emails: profile.emails
+//         };
+//         users.push(user);
+//     }
+//     return done(null, user);
+// }));
 
-// Serialize user to store in session
-passport.serializeUser((user, done) => {
-    done(null, user.googleId);
-});
+// // Serialize user to store in session
+// passport.serializeUser((user, done) => {
+//     done(null, user.googleId);
+// });
 
-// Deserialize user from session
-passport.deserializeUser((id, done) => {
-    const user = users.find(u => u.googleId === id);
-    done(null, user);
-});
+// // Deserialize user from session
+// passport.deserializeUser((id, done) => {
+//     const user = users.find(u => u.googleId === id);
+//     done(null, user);
+// });
 
+//empty google auth controller
 export const googleAuthController = {
-    googleAuth: passport.authenticate('google', { scope: ['profile', 'email'] }),
-    googleAuthCallback: passport.authenticate('google', { failureRedirect: '/' }),
-    googleAuthSuccess: async (req, res) => {
-        const user = req.user;
-        const userP = await prisma.user.findUnique({
-            where: {
-                email: user.emails[0].value,
-            },
-        });
-        if (!userP) {
-            // user is not present in the database
-            // create a new user and generate a jwt token
-            await prisma.user.create({
-                data:{
-                    email: user.emails[0].value,
-                    name: user.displayName,
-                },
-            });
+    
+}
+
+
+
+
+// export const googleAuthController = {
+//     googleAuth: passport.authenticate('google', { scope: ['profile', 'email'] }),
+//     googleAuthCallback: passport.authenticate('google', { failureRedirect: '/' }),
+//     googleAuthSuccess: async (req, res) => {
+//         const user = req.user;
+//         const userP = await prisma.user.findUnique({
+//             where: {
+//                 email: user.emails[0].value,
+//             },
+//         });
+//         if (!userP) {
+//             // user is not present in the database
+//             // create a new user and generate a jwt token
+//             await prisma.user.create({
+//                 data:{
+//                     email: user.emails[0].value,
+//                     name: user.displayName,
+//                 },
+//             });
             
-        }
-        // user is already present in the database
-        // generate jwt token
-        // increment the token version in the user model
-        else{
-            await prisma.user.update({
-                where: {
-                    id: userP.id,
-                },
-                data: {
-                    token_v: userP.token_v + 1,
-                },
-            });
-        }
+//         }
+//         // user is already present in the database
+//         // generate jwt token
+//         // increment the token version in the user model
+//         else{
+//             await prisma.user.update({
+//                 where: {
+//                     id: userP.id,
+//                 },
+//                 data: {
+//                     token_v: userP.token_v + 1,
+//                 },
+//             });
+//         }
         
-        const cc=await prisma.user.findUnique({
-            where: {
-                email: user.emails[0].value,
-            },
-        });
-        const payload = {
-            email: user.emails[0].value,
-            browser: req.headers['user-agent'],
-            version: cc.token_v,
-        };
-        const jwt = createToken(payload, EXP_TIME_JWT, SECRET_KEY);
-        // Send user data as JSON response
-        // redirection to the FE link where these all will be query parameter and then FE will store it in the local storage
-        // FE needs to send a post req to get this jwt from that link
-        // hence done with the google sign in
-        // add jwt token to GJWT
-        // check if exist or not, if not then create else update
-        const gjwtData = await prisma.gjwt.findFirst({
-            where: {
-                userId: cc.id,
-            },
-        });
-        if (gjwtData) {
-            await prisma.gjwt.update({
-                where: {
-                    userId: gjwtData.userId,
-                },
-                data: {
-                    jwt: jwt,
-                },
-            });
-        } else {
-            await prisma.gjwt.create({
-                data: {
-                    jwt: jwt,
-                    user: {
-                        connect: {
-                            id: cc.id,
-                        },
-                    },
-                },
-            });
-        }
-        // redirect to the frontend link with query param
-        res.redirect(`http://localhost:3000/sign/gjwt?email=${encodeURIComponent(cc.email)}`);
-    }
-};
+//         const cc=await prisma.user.findUnique({
+//             where: {
+//                 email: user.emails[0].value,
+//             },
+//         });
+//         const payload = {
+//             email: user.emails[0].value,
+//             browser: req.headers['user-agent'],
+//             version: cc.token_v,
+//         };
+//         const jwt = createToken(payload, EXP_TIME_JWT, SECRET_KEY);
+//         // Send user data as JSON response
+//         // redirection to the FE link where these all will be query parameter and then FE will store it in the local storage
+//         // FE needs to send a post req to get this jwt from that link
+//         // hence done with the google sign in
+//         // add jwt token to GJWT
+//         // check if exist or not, if not then create else update
+//         const gjwtData = await prisma.gjwt.findFirst({
+//             where: {
+//                 userId: cc.id,
+//             },
+//         });
+//         if (gjwtData) {
+//             await prisma.gjwt.update({
+//                 where: {
+//                     userId: gjwtData.userId,
+//                 },
+//                 data: {
+//                     jwt: jwt,
+//                 },
+//             });
+//         } else {
+//             await prisma.gjwt.create({
+//                 data: {
+//                     jwt: jwt,
+//                     user: {
+//                         connect: {
+//                             id: cc.id,
+//                         },
+//                     },
+//                 },
+//             });
+//         }
+//         // redirect to the frontend link with query param
+//         res.redirect(`http://localhost:3000/sign/gjwt?email=${encodeURIComponent(cc.email)}`);
+//     }
+// };
 
 export const getGjwt = async (req, res) => {
     const {email} = req.body;
