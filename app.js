@@ -15,7 +15,7 @@ const port = process.env.PORT || 8000; // Set default port to 8000
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cors({
-    origin: ["localhost:3000", "indiamun.org"],
+    origin: ["http://localhost:3000", "https://indiamun.org"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
 }));
