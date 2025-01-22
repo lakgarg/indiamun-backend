@@ -1,61 +1,47 @@
-import cookieParser from 'cookie-parser';
-config();
 import express from 'express';
-import { config } from 'dotenv';
+import env from 'dotenv';
+import bodyParser from 'body-parser';
+import router from './routes/routes.js';
 import cors from 'cors';
-import morgan from 'morgan';
-import errorMiddleware from './middlewares/error.middleware.js';
+import cron from 'node-cron';
+import deleteExpiredOtps from './utils/deleteExpiredOTPs_shedule.js';
+import session from 'express-session';
 import passport from 'passport';
 
-const app = express();
+env.config();
 
-// Middlewares
-// Built-In
+const app = express();
+const port = process.env.PORT || 8000; // Set default port to 8000
 app.use(express.json());
+app.use(bodyParser.json());
+app.use(cors({
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+}));
 app.use(express.urlencoded({ extended: true }));
 
-// app.use(passport.initialize());
-// app.use(passport.session());
+// Configure session
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-default-secret',
+    resave: false,
+    saveUninitialized: true,
+}));
 
-// Third-Party
-app.use(
-  cors()  
-  // cors({
-  //   origin: [process.env.FRONTEND_URL],
-  //   credentials: true,
-  // })
-);
-app.use(morgan('dev'));
-app.use(cookieParser());
+// Initialize Passport and restore authentication state, if any, from the session
+app.use(passport.initialize());
+app.use(passport.session());
 
-// Server Status Check Route
-app.get('/', (_req, res) => {
-  res.send('IndiaMun Backend is running!');
+app.use(router);
+
+// Schedule the deleteExpiredOtps function to run every day
+cron.schedule('0 0 * * *', () => {
+    deleteExpiredOtps();
 });
 
-app.get('/ping', (_req, res) => {
-  res.send('Pong');
+// Start the server
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });
-
-// Import all routes
-import userRoutes from './routes/user.routes.js';
-import courseRoutes from './routes/course.routes.js';
-import paymentRoutes from './routes/payment.routes.js';
-import googleRoutes from './routes/google.routes.js';
-import miscRoutes from './routes/miscellaneous.routes.js';
-
-app.use('/api/v1/user', userRoutes);
-app.use('/api/v1/courses', courseRoutes);
-app.use('/api/v1/payments', paymentRoutes);
-app.use('/api/v1', miscRoutes);
-app.use('/auth', googleRoutes);
-
-// Default catch all route - 404
-app.all('*', (_req, res) => {
-  res.status(404).send('OOPS!!! 404 Page Not Found');
-});
-
-// Custom error handling middleware
-app.use(errorMiddleware);
 
 export default app;

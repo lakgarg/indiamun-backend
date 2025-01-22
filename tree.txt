@@ -1,0 +1,42 @@
+.
+├── DB
+│   └── dbConfig.js
+├── app.js
+├── controllers
+│   ├── affiliation.js
+│   ├── home.js
+│   └── sign.js
+├── middleware
+│   ├── affiliation.js
+│   └── auth.js
+├── package-lock.json
+├── package.json
+├── prisma
+│   ├── dev.db
+│   ├── migrations
+│   │   ├── 20250120021753_init
+│   │   │   └── migration.sql
+│   │   └── migration_lock.toml
+│   └── schema.prisma
+├── readme.md
+├── routes
+│   ├── affiliation.js
+│   ├── home.js
+│   ├── routes.js
+│   └── sign.js
+├── tree.txt
+└── utils
+    ├── OTP_verification.js
+    ├── cert
+    │   ├── arcadian.regular.ttf
+    │   ├── della_robbia.ttf
+    │   ├── i.png
+    │   └── output.png
+    ├── certificateGenerator.js
+    ├── deleteExpiredOTPs_shedule.js
+    ├── email.js
+    ├── hashing.js
+    ├── razor_pay.js
+    └── token.js
+
+10 directories, 30 files

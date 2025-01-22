@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+
+model User {
+  id            Int           @id @default(autoincrement())
+  email         String        @unique
+  name          String?
+  createdAt     DateTime      @default(now())
+  verified      Boolean       @default(false)
+  password      Password?
+  otp           Otp[]
+  token_v       Int           @default(0)
+  jwt           Gjwt?
+  affiliations  Affiliation[]
+  payments      Payment[]
+  certificates  Certificate[]
+}
+
+model Password {
+  userId   Int    @unique
+  password String
+  salt     String
+  user     User   @relation(fields: [userId], references: [id])
+}
+
+model Gjwt {
+  userId   Int    @unique
+  jwt      String
+  user     User   @relation(fields: [userId], references: [id])
+}
+
+model Otp {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  otp        String
+  expiresAt  DateTime
+  type       String   @default("login")
+  user       User     @relation(fields: [userId], references: [id])
+  salt       String
+  @@unique([userId, type])
+}
+
+model Payment {
+  id             Int      @id @default(autoincrement())
+  affiliationId  Int?     
+  userId         Int
+  amount         Float
+  currency       String
+  receipt        String?
+  orderId        String?
+  paymentId      String?
+  status         String
+  method         String?
+  createdAt      DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id])
+  affiliation    Affiliation? @relation(fields: [affiliationId], references: [id])
+  certificate    Certificate?
+  @@index([userId])
+}
+
+model Affiliation {
+  id                             Int      @id @default(autoincrement())
+  userId                         Int      @unique
+  schoolName                     String
+  schoolAddress                  String
+  state                          String
+  city                           String   @default("")
+  contactPersonPrincipalName     String
+  contactPhoneNumber             String
+  declaration                    String?
+  PrincipalsConclave             Boolean
+  representIndiaAtCOP            Boolean
+  user                           User     @relation(fields: [userId], references: [id])
+  payments                       Payment[]
+  certificates                   Certificate[]
+  @@index([userId])
+}
+
+model Certificate {
+  id             Int      @id @default(autoincrement())
+  userId         Int      
+  affiliationId  Int      @unique
+  createdAt      DateTime @default(now())
+  paymentId      Int      @unique
+  code           String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  affiliation    Affiliation @relation(fields: [affiliationId], references: [id])
+  payment        Payment  @relation(fields: [paymentId], references: [id])
+}

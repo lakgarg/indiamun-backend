@@ -1,0 +1,14 @@
+# .env
+DB_URL=
+
+EXP_TIME_JWT=72h  #3 days
+EXP_TIME_OTP=300000 #5 minutes
+
+SECRET_KEY=
+
+EMAIL=
+EMAIL_PASSWORD=
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+CALLBACK_URL=http://localhost:3000/sign/auth/google/callback
