@@ -55,12 +55,14 @@ const drawText = (ctx, text, x, y, maxFontSize, maxWidth, fontColorRGB, fontFami
 
 dotenv.config();
 
-const FEES = process.env.AFFILIATION_FEES;
-const GST = process.env.GST;
+
 
 
 
 export const getFees = async (req, res) => {
+    const FEES = process.env.AFFILIATION_FEES;
+    const GST = process.env.GST;
+    console.log(FEES, GST);
     res.status(200).json({fees: FEES, gst: GST});
 }
 
